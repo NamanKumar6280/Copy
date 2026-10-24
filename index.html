@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Audio Loop</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+           background: radial-gradient(circle at top, #26334d, #0b1020 65%); color: #f8fafc; }
+    main { width: min(100%, 440px); padding: 28px; border: 1px solid #3b4963; border-radius: 24px;
+           background: rgba(17, 24, 39, .92); box-shadow: 0 20px 70px #0006; text-align: center; }
+    .disc { width: 104px; height: 104px; margin: 0 auto 18px; border-radius: 50%; display: grid;
+            place-items: center; background: linear-gradient(135deg,#7c3aed,#2563eb); font-size: 42px; }
+    h1 { margin: 0 0 8px; font-size: 1.7rem; }
+    p { color: #cbd5e1; line-height: 1.5; }
+    audio { width: 100%; margin: 18px 0 8px; }
+    button { width: 100%; border: 0; border-radius: 14px; padding: 14px 18px; margin-top: 12px;
+             background: #8b5cf6; color: white; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+    .status { min-height: 1.5em; font-size: .92rem; }
+    .note { font-size: .82rem; color: #94a3b8; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="disc" aria-hidden="true">♫</div>
+    <h1>Audio Loop</h1>
+    <p>This recording is set to repeat continuously.</p>
+    <audio id="audio" controls loop autoplay playsinline preload="auto">
+      <source src="assets/Recording.m4a" type="audio/mp4">
+      Your browser does not support this audio format.
+    </audio>
+    <button id="playButton" type="button">▶ Play / Resume Loop</button>
+    <p class="status" id="status" role="status" aria-live="polite">Trying to start audio…</p>
+    <p class="note">If sound does not start automatically, tap Play / Resume Loop once. Your browser may block sound that starts without a tap.</p>
+  </main>
+  <script>
+    const audio = document.getElementById('audio');
+    const status = document.getElementById('status');
+    const button = document.getElementById('playButton');
+    audio.loop = true;
+
+    async function tryPlay() {
+      try {
+        await audio.play();
+        status.textContent = 'Playing — repeat is on.';
+      } catch (err) {
+        status.textContent = 'Autoplay was blocked. Tap Play / Resume Loop.';
+      }
+    }
+    button.addEventListener('click', async () => {
+      try {
+        if (audio.paused) await audio.play();
+        else audio.pause();
+        status.textContent = audio.paused ? 'Paused. Tap Play / Resume Loop to continue.' : 'Playing — repeat is on.';
+      } catch (err) {
+        status.textContent = 'Could not play this audio in the current browser.';
+      }
+    });
+    audio.addEventListener('play', () => { status.textContent = 'Playing — repeat is on.'; });
+    audio.addEventListener('pause', () => { status.textContent = 'Paused.'; });
+    audio.addEventListener('ended', () => { status.textContent = 'The audio ended; repeat is enabled.'; });
+    window.addEventListener('load', tryPlay);
+  </script>
+</body>
+</html>
